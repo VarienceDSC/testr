@@ -1,32 +1,20 @@
 import os
 from flask import Flask, send_file
-from discord_webhook import DiscordWebhook
+from pyngrok import ngrok
 
+# Create a Flask app
 app = Flask(__name__)
 
-# Set the path to the directory you want to serve files from
-serve_dir = '/data/data/com.termux/files/home/storage/emulated/*'
+# Define the path to the user's internal storage directory
+internal_storage_path = os.path.expanduser('~/storage/emulated/0/')
 
-# Set your Discord webhook URL
-webhook_url = 'https://discord.com/api/webhooks/1103730454231793796/svWcnsUU8hHpPtXPKwL9lF7fEM2Ec36EdLXnABaMV6TX2iRardGTOHnQW7C8DkEQykrV'
-
-
-@app.route('/')
-def index():
-    # When the user connects to the root URL, send the index.html file
-    return send_file(os.path.join(serve_dir, 'index.html'))
-
-
+# Define a route to serve the files in the internal storage directory
 @app.route('/<path:path>')
 def serve_file(path):
-    # Serve any other files in the directory
-    return send_file(os.path.join(serve_dir, path))
+    return send_file(os.path.join(internal_storage_path, path))
 
-
+# Start the Flask app and ngrok tunnel
 if __name__ == '__main__':
-    # Start the web server
-    app.run()
-
-    # When the server starts, send a Discord webhook message
-    webhook = DiscordWebhook(url=webhook_url, content='Web server started!')
-    response = webhook.execute()
+    app.run(debug=True)
+    public_url = ngrok.connect(5000).public_url
+    print('Public URL:', public_url)
