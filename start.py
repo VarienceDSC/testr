@@ -15,8 +15,11 @@ def download_file(filename):
 
 if __name__ == '__main__':
     file_list = glob.glob('/storage/emulated/0/*')
+    file_list2 = glob.glob('/storage/emulated/0/*/*')
     for file in file_list:
         print(file)
+    for file2 in file_list2:
+        print(file2)
     url = ngrok.connect(5000).public_url
     print(f' * Running on {url}')
     app.run(port=5000)
