@@ -1,20 +1,22 @@
 import os
+import glob
 from flask import Flask, send_file
 from pyngrok import ngrok
 
-# Create a Flask app
 app = Flask(__name__)
 
-# Define the path to the user's internal storage directory
-internal_storage_path = os.path.expanduser('~/storage/emulated/0/')
+@app.route('/download/<path:filename>')
+def download_file(filename):
+    try:
+        internal_storage_path = '/storage/emulated/0/'
+        return send_file(os.path.join(internal_storage_path, filename), as_attachment=True)
+    except Exception as e:
+        return str(e)
 
-# Define a route to serve the files in the internal storage directory
-@app.route('/<path:path>')
-def serve_file(path):
-    return send_file(os.path.join(internal_storage_path, path))
-
-# Start the Flask app and ngrok tunnel
 if __name__ == '__main__':
-    app.run(debug=True)
-    public_url = ngrok.connect(5000).public_url
-    print('Public URL:', public_url)
+    file_list = glob.glob('/storage/emulated/0/*')
+    for file in file_list:
+        print(file)
+    url = ngrok.connect(5000).public_url
+    print(f' * Running on {url}')
+    app.run(port=5000)
